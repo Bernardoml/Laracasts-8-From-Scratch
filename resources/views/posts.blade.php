@@ -1,17 +1,20 @@
-<!DOCTYPE html>
+@extends('layout')
 
-<title>My Blog</title>
-<link rel="stylesheet" href="/app.css">
+@section('content')
+    @foreach ($posts as $post)
+        <article>
+            <h1>
+                <a href="/posts/{{ $post->slug }}">
+                    {{ $post->title }}
+                </a>
+            </h1>
 
-<body>
-    <?php foreach ($posts as $post) : ?>
-    <article>
-        <a href="/posts/<?= $post->slug; ?>">
-        <h1><?= $post->title; ?></h1>
-        </a>
-        <div>
-            <?= $post->excerpt; ?>
-        </div>
-    </article>
-    <?php endforeach; ?>
-</body>
+            <p>
+                By <a href="/authors/{{ $post->author->username }}"> {{ $post->author->name }}</a> in <a href="/categories/{{ $post->category->slug }}">{{ $post->category->name }}</a>
+            </p>
+            <div>
+                {{ $post->excerpt }}
+            </div>
+        </article>
+    @endforeach
+@endsection
