@@ -2,49 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\File;
-use Spatie\YamlFrontMatter\YamlFrontMatter;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class Post
+class Post extends Model
 {
-    public $title;
-    public $excerpt;
-    public $date;
-    public $body;
-    public $slug;
+    use HasFactory;
 
-    public function __construct($title, $excerpt, $date, $body, $slug)
+    protected $with = ['category', 'author'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
+    protected $fillable = [
+        'slug',
+        'title',
+        'excerpt',
+        'body',
+        'category_id'
+    ];
+
+    public function category()
     {
-        $this->title = $title;
-        $this->excerpt = $excerpt;
-        $this->date = $date;
-        $this->body = $body;
-        $this->slug = $slug;
+        return $this->belongsTo(Category::class);
     }
 
-
-    public static function all()
+    public function author()
     {
-        return cache()->rememberForever('posts.all', function() {
-            return collect(File::files(resource_path("posts/")))
-                ->map(function ($file){
-                    $document = YamlFrontMatter::parseFile($file);
-
-                    return new Post(
-                        $document->title,
-                        $document->excerpt,
-                        $document->date,
-                        $document->body(),
-                        $document->slug
-                    );
-                })
-                ->sortByDesc('date');
-        });
-    }
-
-    public static function find($slug)
-    {
-        return static::all()->firstWhere('slug', $slug);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
